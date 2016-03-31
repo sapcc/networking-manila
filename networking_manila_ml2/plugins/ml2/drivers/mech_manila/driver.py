@@ -48,6 +48,6 @@ class ManilaMechanismDriver(api.MechanismDriver):
         device_owner = context.current['device_owner']
 
         if device_owner and device_owner.startswith('manila'):
-            context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.PORT_STATUS_ACTIVE)
+            context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.ACTIVE)
 
         return True

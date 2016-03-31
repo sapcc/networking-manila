@@ -25,7 +25,7 @@ LOG = log.getLogger(__name__)
 
 
 
-class ManilaMechanismDriver(mech_agent.SimpleAgentMechanismDriverBase):
+class ManilaMechanismDriver(api.MechanismDriver):
 
     def __init__(self):
         LOG.info(_LI("ASR mechanism driver initializing..."))
@@ -48,6 +48,6 @@ class ManilaMechanismDriver(mech_agent.SimpleAgentMechanismDriverBase):
         device_owner = context.current['device_owner']
 
         if device_owner and device_owner.startswith('manila'):
-            context.set_binding(segment[api.ID], self.vif_type,self.vif_details)
+            context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.PORT_STATUS_ACTIVE)
 
         return True

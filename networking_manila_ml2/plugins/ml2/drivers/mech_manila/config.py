@@ -1,4 +1,5 @@
-# Copyright 2014 IBM Corp.
+# Copyright 2016 SAP SE
+#
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +16,11 @@
 
 from oslo_config import cfg
 
-manila_opts = []
+manila_opts = [
+    cfg.ListOpt('physical_networks', default=None,
+                help=_("List of pyhsical networks the driver should use to"
+                       "indentify the segment to use (if not specified"
+                       "driver will use first segment in the list)")),
+]
 
-cfg.CONF.register_opts(manila_opts)
-CONF = cfg.CONF
-CONF()
+cfg.CONF.register_opts(manila_opts, "ml2_manila")

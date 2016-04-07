@@ -43,11 +43,12 @@ class ManilaMechanismDriver(api.MechanismDriver):
     def bind_port(self, context):
 
         # For now we will just bind the last segment
-        segment = context.segments_to_bind.pop()
+        if context.segments_to_bind:
+            segment = context.segments_to_bind.pop()
 
-        device_owner = context.current['device_owner']
+            device_owner = context.current['device_owner']
 
-        if device_owner and device_owner.startswith('manila'):
-            context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.ACTIVE)
+            if device_owner and device_owner.startswith('manila'):
+                context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.ACTIVE)
 
-        return True
+            return True

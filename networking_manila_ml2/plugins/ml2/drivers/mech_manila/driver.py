@@ -26,7 +26,7 @@ LOG = log.getLogger(__name__)
 
 
 cfg.CONF.import_group('ml2_manila',
-                      'networking_manila.ml2.mech_manila.config')
+                      'networking_manila_ml2.plugins.ml2.drivers.mech_manila.config')
 
 
 class ManilaMechanismDriver(api.MechanismDriver):

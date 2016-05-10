@@ -1,4 +1,4 @@
-# Copyright 2014 IBM Corp.
+# Copyright 2016 SAP SE
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -12,42 +12,59 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron.plugins.ml2 import driver_api as api
 from neutron.extensions import portbindings
 from neutron.i18n import _LI
 from neutron.plugins.common import constants as p_constants
 
-from neutron.plugins.ml2.drivers import mech_agent
-from neutron.plugins.ml2 import driver_api as api
+from oslo_config import cfg
 from oslo_log import log
-from networking_manila_ml2.plugins.ml2.drivers.mech_manila import constants as manila_constants
+
+import constants
 
 LOG = log.getLogger(__name__)
 
 
+cfg.CONF.import_group('ml2_manila',
+                      'networking_manila.ml2.mech_manila.config')
+
 
 class ManilaMechanismDriver(api.MechanismDriver):
-
     def __init__(self):
-        LOG.info(_LI("ASR mechanism driver initializing..."))
-
-        self.vif_type = manila_constants.VIF_TYPE_MANILA
+        LOG.info(_LI("Manila mechanism driver initializing..."))
+        self.agent_type = constants.MANILA_AGENT_TYPE
+        self.vif_type = constants.VIF_TYPE_MANILA
         self.vif_details = {portbindings.CAP_PORT_FILTER: False}
+        self.physical_networks = cfg.CONF.ml2_manila.physical_networks
 
+        super(ManilaMechanismDriver, self).__init__()
 
-
+        LOG.info(_LI("Manila mechanism driver initialized."))
 
     def initialize(self):
         pass
 
-
     def bind_port(self, context):
-
-        # For now we will just bind the last segment
-        if context.segments_to_bind:
-            segment = context.segments_to_bind.pop()
-
-            device_owner = context.current['device_owner']
-
-            if device_owner and device_owner.startswith('manila'):
-                context.set_binding(segment[api.ID], self.vif_type, self.vif_details, p_constants.ACTIVE)
+        device_owner = context.current['device_owner']
+        if device_owner and device_owner.startswith('manila:'):
+            # bind to first segment if no physical networks are configured
+            if self.physical_networks is None:
+                self._set_binding(context, context.segments_to_bind[0])
                 return True
+
+            # bind to first segment present in list of physical networks
+            for segment in context.segments_to_bind:
+                if segment[api.PHYSICAL_NETWORK] in self.physical_networks:
+                    self._set_binding(context, segment)
+                    return True
+
+            LOG.error("No segment matches the configured physical networks "
+                      "%(physical_networks)s",
+                      {'physical_networks': self.physical_networks})
+        return False
+
+    def _set_binding(self, context, segment):
+        context.set_binding(segment[api.ID],
+                            self.vif_type,
+                            self.vif_details,
+                            p_constants.ACTIVE)

@@ -14,6 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from networking_manila_ml2._i18n import _
 from oslo_config import cfg
 
 manila_opts = [

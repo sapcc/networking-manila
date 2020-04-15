@@ -12,15 +12,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron_lib.plugins.ml2 import api
-from neutron_lib.api.definitions import portbindings
-from neutron_lib import constants as p_constants
 from networking_manila_ml2._i18n import _LI
-
+from networking_manila_ml2.plugins.ml2.drivers.mech_manila import constants
+from neutron_lib import constants as p_constants
+from neutron_lib.api.definitions import portbindings
+from neutron_lib.plugins.ml2 import api
 from oslo_config import cfg
 from oslo_log import log
-
-import constants
 
 LOG = log.getLogger(__name__)
 
